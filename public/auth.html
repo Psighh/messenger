@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduMessenger — Вход</title>
+  <link rel="stylesheet" href="styles/auth.css" />
+</head>
+<body>
+
+  <div class="auth-layout">
+
+    <!-- ===== LEFT: брендинг ===== -->
+    <aside class="auth-brand">
+      <div class="brand-inner">
+        <div class="brand-logo">
+          <span class="brand-icon">🎓</span>
+          <span class="brand-name">EduMessenger</span>
+        </div>
+        <h1 class="brand-title">Мессенджер для<br>студентов и преподавателей</h1>
+        <p class="brand-subtitle">
+          Общайтесь, получайте уведомления от кафедры и администрации —
+          всё в одном месте.
+        </p>
+        <ul class="brand-features">
+          <li><span>💬</span> Личные сообщения</li>
+          <li><span>📢</span> Общие уведомления</li>
+          <li><span>🏛️</span> Группы и кафедры</li>
+        </ul>
+      </div>
+    </aside>
+
+    <!-- ===== RIGHT: форма ===== -->
+    <main class="auth-main">
+      <div class="auth-card">
+
+        <!-- Tabs -->
+        <div class="auth-tabs" role="tablist">
+          <button class="auth-tab active" data-tab="login" role="tab" aria-selected="true">
+            Вход
+          </button>
+          <button class="auth-tab" data-tab="register" role="tab" aria-selected="false">
+            Регистрация
+          </button>
+        </div>
+
+        <!-- ===== LOGIN ===== -->
+        <form class="auth-form active" id="loginForm" data-form="login" novalidate>
+          <h2 class="form-title">Вход в аккаунт</h2>
+          <p class="form-subtitle">Введите почту и пароль</p>
+
+          <div class="form-field">
+            <label for="loginEmail">Почта</label>
+            <input type="email" id="loginEmail" name="email" autocomplete="email"
+                   placeholder="you@edu.ru" required />
+          </div>
+
+          <div class="form-field">
+            <label for="loginPassword">Пароль</label>
+            <div class="password-wrap">
+              <input type="password" id="loginPassword" name="password"
+                     autocomplete="current-password" placeholder="••••••••" required />
+              <button type="button" class="toggle-pass" data-target="loginPassword"
+                      aria-label="Показать пароль">👁</button>
+            </div>
+          </div>
+
+          <div class="form-row-between">
+            <label class="checkbox">
+              <input type="checkbox" name="remember" />
+              <span>Запомнить меня</span>
+            </label>
+            <a href="#" class="link-muted" id="forgotLink">Забыли пароль?</a>
+          </div>
+
+          <div class="form-error hidden" id="loginError"></div>
+
+          <button type="submit" class="btn-submit" id="loginSubmit">
+            Войти
+          </button>
+
+          <p class="form-switch">
+            Нет аккаунта? <a href="#" data-switch="register">Зарегистрироваться</a>
+          </p>
+        </form>
+
+        <!-- ===== REGISTER ===== -->
+        <form class="auth-form" id="registerForm" data-form="register" novalidate>
+          <h2 class="form-title">Регистрация</h2>
+          <p class="form-subtitle">Создайте новый аккаунт</p>
+
+          <!-- Выбор роли -->
+          <div class="role-selector" id="roleSelector">
+            <button type="button" class="role-option selected" data-role="student">
+              <span class="role-icon">🎒</span>
+              <span class="role-title">Студент</span>
+            </button>
+            <button type="button" class="role-option" data-role="teacher">
+              <span class="role-icon">👨‍🏫</span>
+              <span class="role-title">Преподаватель</span>
+            </button>
+          </div>
+
+          <div class="form-field">
+            <label for="regName">ФИО</label>
+            <input type="text" id="regName" name="name"
+                   placeholder="Иванов Иван Иванович" autocomplete="name" required />
+          </div>
+
+          <!-- Динамическое поле: группа (студент) или кафедра (преподаватель) -->
+          <div class="form-field" id="groupField">
+            <label for="regGroup" id="groupLabel">Группа</label>
+            <select id="regGroup" name="groupId" required>
+              <option value="">— Выберите группу —</option>
+            </select>
+          </div>
+
+          <div class="form-field">
+            <label for="regEmail">Почта</label>
+            <input type="email" id="regEmail" name="email"
+                   placeholder="you@edu.ru" autocomplete="email" required />
+          </div>
+
+          <div class="form-field">
+            <label for="regPassword">Пароль</label>
+            <div class="password-wrap">
+              <input type="password" id="regPassword" name="password"
+                     autocomplete="new-password" placeholder="Минимум 8 символов" required minlength="8" />
+              <button type="button" class="toggle-pass" data-target="regPassword"
+                      aria-label="Показать пароль">👁</button>
+            </div>
+            <div class="password-strength" id="passwordStrength">
+              <div class="strength-bar"><span></span></div>
+              <span class="strength-label">Надёжность пароля</span>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="regPassword2">Повторите пароль</label>
+            <div class="password-wrap">
+              <input type="password" id="regPassword2" name="password2"
+                     autocomplete="new-password" placeholder="Повторите пароль" required />
+              <button type="button" class="toggle-pass" data-target="regPassword2"
+                      aria-label="Показать пароль">👁</button>
+            </div>
+          </div>
+
+          <div class="form-error hidden" id="registerError"></div>
+
+          <button type="submit" class="btn-submit" id="registerSubmit">
+            Зарегистрироваться
+          </button>
+
+          <p class="form-switch">
+            Уже есть аккаунт? <a href="#" data-switch="login">Войти</a>
+          </p>
+        </form>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/auth.js"></script>
+</body>
+</html>

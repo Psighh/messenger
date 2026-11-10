@@ -1,0 +1,11 @@
+RewriteEngine On
+RewriteBase /App/
+
+# 1. Статика из public/ (файлы существуют) — отдаём напрямую
+RewriteCond %{DOCUMENT_ROOT}/App/public/$1 -f
+RewriteRule ^(.*)$ /App/public/$1 [L]
+
+# 2. Всё остальное (включая /App/api/...) — на public/index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ public/index.php [L,QSA]

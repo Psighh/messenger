@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduMessenger — Админ-панель</title>
+  <link rel="stylesheet" href="styles/admin.css" />
+</head>
+<body>
+
+  <!-- ===== HEADER ===== -->
+  <header class="app-header">
+    <div class="header-left">
+      <button class="menu-toggle" id="menuToggle" aria-label="Меню">
+        <span></span><span></span><span></span>
+      </button>
+      <a href="messenger.html" class="logo">
+        <span class="logo-icon">🎓</span>
+        <span class="logo-text">EduMessenger</span>
+      </a>
+      <span class="role-badge">Админ</span>
+    </div>
+    <div class="header-right">
+      <button class="icon-btn" id="themeToggle" title="Тема">🌓</button>
+      <div class="user-chip" id="userChip">
+        <div class="avatar" id="adminAvatar">A</div>
+        <span id="adminName">Администратор</span>
+      </div>
+      <button class="btn-logout" id="logoutBtn">Выйти</button>
+    </div>
+  </header>
+
+  <!-- ===== LAYOUT ===== -->
+  <div class="app-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="nav">
+        <button class="nav-item active" data-tab="departments">
+          <span class="nav-icon">🏛️</span>
+          <span class="nav-label">Кафедры</span>
+        </button>
+        <button class="nav-item" data-tab="groups">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label">Группы</span>
+        </button>
+        <button class="nav-item" data-tab="students">
+          <span class="nav-icon">🎒</span>
+          <span class="nav-label">Студенты</span>
+        </button>
+        <button class="nav-item" data-tab="teachers">
+          <span class="nav-icon">👨‍🏫</span>
+          <span class="nav-label">Преподаватели</span>
+        </button>
+        <button class="nav-item" data-tab="broadcast">
+          <span class="nav-icon">📢</span>
+          <span class="nav-label">Рассылки</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <a href="messenger.html" class="sidebar-link">
+          <span>💬</span> Перейти в мессенджер
+        </a>
+      </div>
+    </aside>
+
+    <!-- OVERLAY для мобилки -->
+    <div class="sidebar-overlay" id="sidebarOverlay"></div>
+
+    <!-- MAIN -->
+    <main class="main">
+      <div class="main-header">
+        <h1 class="page-title" id="pageTitle">Кафедры</h1>
+        <div class="toolbar">
+          <div class="search-box">
+            <input type="search" id="searchInput" placeholder="Поиск..." />
+            <span class="search-icon">🔍</span>
+          </div>
+          <button class="btn-primary" id="createBtn">
+            <span>+</span> Добавить
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading -->
+      <div class="loading" id="loading">
+        <div class="spinner"></div>
+        <span>Загрузка...</span>
+      </div>
+
+      <!-- Empty -->
+      <div class="empty-state hidden" id="emptyState">
+        <div class="empty-icon">📭</div>
+        <p id="emptyText">Здесь пока пусто</p>
+      </div>
+
+      <!-- ===== DEPARTMENTS ===== -->
+      <section class="tab-content active" data-content="departments">
+        <div class="cards-grid" id="departmentsGrid"></div>
+      </section>
+
+      <!-- ===== GROUPS ===== -->
+      <section class="tab-content" data-content="groups">
+        <div class="filter-bar">
+          <label>Кафедра:</label>
+          <select id="groupDeptFilter">
+            <option value="">Все кафедры</option>
+          </select>
+        </div>
+        <div class="cards-grid" id="groupsGrid"></div>
+      </section>
+
+      <!-- ===== STUDENTS ===== -->
+      <section class="tab-content" data-content="students">
+        <div class="filter-bar">
+          <label>Кафедра:</label>
+          <select id="studentDeptFilter">
+            <option value="">Все</option>
+          </select>
+          <label>Группа:</label>
+          <select id="studentGroupFilter">
+            <option value="">Все</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="studentsTable">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Группа</th>
+                <th>Кафедра</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="studentsTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- ===== TEACHERS ===== -->
+      <section class="tab-content" data-content="teachers">
+        <div class="filter-bar">
+          <label>Кафедра:</label>
+          <select id="teacherDeptFilter">
+            <option value="">Все</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <table class="data-table" id="teachersTable">
+            <thead>
+              <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Кафедра</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="teachersTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+        <!-- ===== BROADCAST ===== -->
+      <section class="tab-content" data-content="broadcast">
+        <div class="broadcast-panel">
+          <h3>📢 Новая рассылка</h3>
+          <p class="hint">Выберите уровень получателей: университет → кафедра → группа.</p>
+
+          <div class="scope-selector" id="scopeSelector">
+            <button type="button" class="scope-option selected" data-scope="university">
+              <span class="scope-icon">🏫</span>
+              <span class="scope-title">Университет</span>
+              <span class="scope-desc">Получат все</span>
+            </button>
+            <button type="button" class="scope-option" data-scope="department">
+              <span class="scope-icon">🏛️</span>
+              <span class="scope-title">Кафедра</span>
+              <span class="scope-desc">Студенты и преподаватели кафедры</span>
+            </button>
+            <button type="button" class="scope-option" data-scope="group">
+              <span class="scope-icon">👥</span>
+              <span class="scope-title">Группа</span>
+              <span class="scope-desc">Только студенты группы</span>
+            </button>
+          </div>
+
+          <div class="broadcast-target hidden" id="broadcastDeptWrap">
+            <label>Кафедра</label>
+            <select id="broadcastDept"></select>
+          </div>
+
+          <div class="broadcast-target hidden" id="broadcastGroupWrap">
+            <label>Группа</label>
+            <select id="broadcastGroup"></select>
+          </div>
+
+          <div class="broadcast-target">
+            <label>Заголовок</label>
+            <input type="text" id="broadcastTitle" placeholder="Например: Изменение расписания" maxlength="120" />
+          </div>
+
+          <div class="broadcast-target">
+            <label>Текст уведомления</label>
+            <textarea class="broadcast-textarea" id="broadcastText" placeholder="Введите текст рассылки..." maxlength="2000"></textarea>
+          </div>
+
+          <div class="broadcast-footer">
+            <span class="broadcast-recipients" id="broadcastRecipients">Получателей: <strong>—</strong></span>
+            <button type="button" class="btn-primary" id="broadcastSend">📤 Отправить</button>
+          </div>
+        </div>
+
+        <h3 style="font-size:15px;font-weight:700;margin:20px 0 12px;">История рассылок</h3>
+        <div class="table-wrap">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Дата</th>
+                <th>Заголовок</th>
+                <th>Уровень</th>
+                <th>Получателей</th>
+                <th>Действия</th>
+              </tr>
+            </thead>
+            <tbody id="broadcastTbody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- ===== MODAL ===== -->
+  <div class="modal-overlay hidden" id="modalOverlay">
+    <div class="modal" id="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Добавить</h2>
+        <button class="modal-close" id="modalClose">✕</button>
+      </div>
+      <form class="modal-body" id="modalForm">
+        <div id="modalFields"></div>
+        <div class="modal-error hidden" id="modalError"></div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="modalCancel">Отмена</button>
+          <button type="submit" class="btn-primary" id="modalSubmit">Сохранить</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===== CONFIRM ===== -->
+  <div class="modal-overlay hidden" id="confirmOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Подтверждение</h2>
+      </div>
+      <div class="modal-body">
+        <p id="confirmText">Вы уверены?</p>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="confirmCancel">Отмена</button>
+          <button type="button" class="btn-danger" id="confirmOk">Удалить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/admin.js"></script>
+</body>
+</html>

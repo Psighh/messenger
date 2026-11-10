@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EduMessenger — Мессенджер</title>
+  <link rel="stylesheet" href="styles/messenger.css" />
+</head>
+<body>
+
+  <!-- ===== APP LAYOUT ===== -->
+  <div class="app">
+
+    <!-- ===== LEFT: Список чатов ===== -->
+    <aside class="chat-list-panel" id="chatListPanel">
+
+      <!-- Header -->
+      <header class="chat-list-header">
+        <div class="user-chip" id="userChip">
+          <div class="avatar" id="myAvatar">U</div>
+          <div class="user-chip-info">
+            <span class="user-chip-name" id="myName">Пользователь</span>
+            <span class="user-chip-role" id="myRole">Студент</span>
+          </div>
+        </div>
+        <button class="icon-btn" id="settingsBtn" title="Настройки">⚙️</button>
+      </header>
+
+      <!-- Поиск -->
+      <div class="chat-search">
+        <input type="search" id="chatSearch" placeholder="Поиск чатов..." />
+        <span class="search-icon">🔍</span>
+      </div>
+
+      <!-- Закреплённый чат рассылок -->
+      <div class="pinned-broadcast" id="pinnedBroadcast" data-chat-id="broadcast" role="button" tabindex="0">
+        <div class="avatar broadcast-avatar">📢</div>
+        <div class="chat-item-info">
+          <div class="chat-item-top">
+            <span class="chat-item-name">Рассылки</span>
+            <span class="chat-item-time" id="broadcastTime"></span>
+          </div>
+          <span class="chat-item-preview" id="broadcastPreview">Уведомления от администрации</span>
+        </div>
+        <span class="unread-badge hidden" id="broadcastUnread">0</span>
+      </div>
+
+      <!-- Список чатов -->
+      <div class="chat-items" id="chatItems"></div>
+
+      <!-- Empty -->
+      <div class="chat-list-empty hidden" id="chatListEmpty">
+        <p>Чатов пока нет</p>
+      </div>
+    </aside>
+
+    <!-- ===== CENTER: Область чата ===== -->
+    <main class="chat-panel" id="chatPanel">
+
+      <!-- Placeholder -->
+      <div class="chat-placeholder" id="chatPlaceholder">
+        <div class="placeholder-icon">💬</div>
+        <h2>Выберите чат</h2>
+        <p>Начните общение или откройте рассылки</p>
+      </div>
+
+      <!-- Активный чат -->
+      <div class="chat-active hidden" id="chatActive">
+        <header class="chat-header">
+          <button class="icon-btn back-btn" id="backBtn" title="Назад">←</button>
+          <div class="avatar" id="chatAvatar">U</div>
+          <div class="chat-header-info">
+            <span class="chat-header-name" id="chatName">Чат</span>
+            <span class="chat-header-status" id="chatStatus">в сети</span>
+          </div>
+          <div class="chat-header-actions">
+            <button class="icon-btn" id="chatInfoBtn" title="Информация">ℹ️</button>
+          </div>
+        </header>
+
+        <div class="messages" id="messages">
+          <div class="messages-empty hidden" id="messagesEmpty">
+            <p>Сообщений пока нет. Напишите первым!</p>
+          </div>
+        </div>
+
+        <div class="composer" id="composer">
+          <textarea id="messageInput" placeholder="Напишите сообщение..." rows="1" maxlength="4000"></textarea>
+          <button class="send-btn" id="sendBtn" title="Отправить">➤</button>
+        </div>
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- ===== SETTINGS MODAL ===== -->
+  <div class="modal-overlay hidden" id="settingsOverlay">
+    <div class="modal settings-modal">
+      <div class="modal-header">
+        <h2>Настройки</h2>
+        <button class="modal-close" id="settingsClose">✕</button>
+      </div>
+      <div class="modal-body">
+
+        <!-- Профиль -->
+        <section class="settings-section">
+          <h3>Профиль</h3>
+          <div class="settings-profile">
+            <div class="avatar avatar-lg" id="settingsAvatar">U</div>
+            <div class="settings-profile-info">
+              <span class="settings-profile-name" id="settingsName">Пользователь</span>
+              <span class="settings-profile-role" id="settingsRole">Студент</span>
+            </div>
+          </div>
+          <div class="form-field">
+            <label for="settingsStatus">Статус «О себе»</label>
+            <input type="text" id="settingsStatus" placeholder="Например: На связи до 18:00" maxlength="120" />
+          </div>
+        </section>
+
+        <!-- Тема -->
+        <section class="settings-section">
+          <h3>Тема оформления</h3>
+          <div class="theme-selector" id="themeSelector">
+            <button type="button" class="theme-option selected" data-theme-choice="light">
+              <span class="theme-preview light"></span>
+              <span>Светлая</span>
+            </button>
+            <button type="button" class="theme-option" data-theme-choice="dark">
+              <span class="theme-preview dark"></span>
+              <span>Тёмная</span>
+            </button>
+          </div>
+        </section>
+
+        <!-- Уведомления -->
+        <section class="settings-section">
+          <h3>Уведомления</h3>
+          <label class="toggle-row">
+            <span>Включить уведомления</span>
+            <input type="checkbox" id="notificationsEnabled" checked />
+          </label>
+          <label class="toggle-row">
+            <span>Звук</span>
+            <input type="checkbox" id="notificationsSound" checked />
+          </label>
+
+          <div class="settings-sub">
+            <h4>Тихие часы</h4>
+            <p class="hint">В это время уведомления не будут приходить.</p>
+            <div class="time-range">
+              <label>
+                С
+                <input type="time" id="quietFrom" value="22:00" />
+              </label>
+              <label>
+                По
+                <input type="time" id="quietTo" value="08:00" />
+              </label>
+            </div>
+          </div>
+        </section>
+
+        <div class="settings-footer">
+          <button type="button" class="btn-secondary" id="settingsCancel">Отмена</button>
+          <button type="button" class="btn-primary" id="settingsSave">Сохранить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== CHAT INFO MODAL ===== -->
+  <div class="modal-overlay hidden" id="infoOverlay">
+    <div class="modal modal-sm">
+      <div class="modal-header">
+        <h2>Информация о чате</h2>
+        <button class="modal-close" id="infoClose">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="info-profile">
+          <div class="avatar avatar-lg" id="infoAvatar">U</div>
+          <h3 id="infoName">Чат</h3>
+          <p id="infoRole" class="info-role"></p>
+          <p id="infoStatus" class="info-status"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== TOAST ===== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/messenger.js"></script>
+</body>
+</html>
