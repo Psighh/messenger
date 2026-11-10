@@ -13,7 +13,7 @@ CREATE TABLE departments (
 );
 
 -- Группы (привязаны к кафедре)
-CREATE TABLE groups (
+CREATE TABLE `groups` (
   id INT AUTO_INCREMENT PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
   department_id INT NOT NULL,
@@ -32,7 +32,7 @@ CREATE TABLE users (
   department_id INT NULL,
   status VARCHAR(120) NULL DEFAULT '',
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL,
+  FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE SET NULL,
   FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL
 );
 
@@ -85,7 +85,7 @@ CREATE TABLE broadcasts (
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (admin_id) REFERENCES users(id) ON DELETE CASCADE,
   FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
-  FOREIGN KEY (group_id) REFERENCES groups(id) ON DELETE SET NULL
+  FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE SET NULL
 );
 
 -- Прочитанность рассылок пользователем

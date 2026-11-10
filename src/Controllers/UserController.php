@@ -35,8 +35,6 @@ class UserController
 
     public function updateNotifications(): void
     {
-        // Пока храним настройки в localStorage на фронте.
-        // Здесь можно добавить таблицу user_settings, когда понадобится.
         Auth::requireUser();
         Response::json(['ok' => true]);
     }
@@ -81,7 +79,6 @@ class UserController
             if (!$departmentId) Response::error('Укажите кафедру');
         }
 
-        // временный пароль; пользователь не входит до сброса (можно добавить reset)
         $hash = password_hash(bin2hex(random_bytes(8)), PASSWORD_DEFAULT);
 
         $stmt = Database::get()->prepare(

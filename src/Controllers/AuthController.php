@@ -1,6 +1,4 @@
 <?php
-
-
 // src/Controllers/AuthController.php
 class AuthController
 {
@@ -40,7 +38,6 @@ class AuthController
         if (strlen($password) < 8) Response::error('Пароль должен быть не короче 8 символов');
         if (!in_array($role, ['student', 'teacher'], true)) Response::error('Недопустимая роль');
 
-        // уникальность email
         $stmt = Database::get()->prepare('SELECT id FROM users WHERE email = ?');
         $stmt->execute([$email]);
         if ($stmt->fetch()) Response::error('Пользователь с такой почтой уже существует');
@@ -50,7 +47,7 @@ class AuthController
         if ($role === 'student') {
             $groupId = (int)($data['groupId'] ?? 0);
             if (!$groupId) Response::error('Выберите группу');
-            $stmt = Database::get()->prepare('SELECT department_id FROM groups WHERE id = ?');
+            $stmt = Database::get()->prepare('SELECT department_id FROM `groups` WHERE id = ?');
             $stmt->execute([$groupId]);
             $g = $stmt->fetch();
             if (!$g) Response::error('Группа не найдена');

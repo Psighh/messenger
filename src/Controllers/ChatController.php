@@ -5,8 +5,7 @@ class ChatController
     /** Список чатов текущего пользователя */
     public function index(): void
     {
-        $me = Auth::requireUser();
-        $sql = 'SELECT c.id AS chat_id, c.type,
+        $me = Auth::requireUser();$sql = 'SELECT c.id AS chat_id, c.type,
                        cp2.user_id AS peer_id,
                        u.name AS peer_name, u.role AS peer_role, u.status AS peer_status
                 FROM chat_participants cp
@@ -16,17 +15,15 @@ class ChatController
                 WHERE cp.user_id = ?';
         $stmt = Database::get()->prepare($sql);
         $stmt->execute([$me['id']]);
-        $rows = $stmt->fetchAll();
+        $rows =$stmt->fetchAll();
 
         // Последнее сообщение + непрочитанные
         $out = [];
-        foreach ($rows as $r) {
-            $chatId = (int)$r['chat_id'];
-            $stmt = Database::get()->prepare(
+        foreach ($rows as $r) {$chatId = (int)$r['chat_id'];$stmt = Database::get()->prepare(
                 'SELECT text, created_at FROM messages WHERE chat_id = ? ORDER BY id DESC LIMIT 1'
             );
             $stmt->execute([$chatId]);
-            $last = $stmt->fetch() ?: null;
+            $last =$stmt->fetch() ?: null;
 
             $out[] = [
                 'id' => $chatId,
@@ -36,7 +33,7 @@ class ChatController
                 'status' => $r['peer_status'] ?? '',
                 'lastMessage' => $last['text'] ?? '',
                 'lastTime' => $last['created_at'] ?? null,
-                'unread' => 0, // пока считаем 0; при желании можно вести table chat_reads
+                'unread' => 0,
             ];
         }
         Response::json($out);
@@ -47,7 +44,7 @@ class ChatController
         $me = Auth::requireUser();
         $chatId = (int)$params['id'];
 
-        if (!$this->inChat($me['id'], $chatId)) Response::error('Forbidden', 403);
+        if (!$this->inChat($me['id'],$chatId)) Response::error('Forbidden', 403);
 
         $stmt = Database::get()->prepare(
             'SELECT m.id, m.sender_id, u.name AS sender_name, m.text, m.created_at
@@ -69,22 +66,18 @@ class ChatController
     {
         $me = Auth::requireUser();
         $chatId = (int)$params['id'];
-        if (!$this->inChat($me['id'], $chatId)) Response::error('Forbidden', 403);
+        if (!$this->inChat($me['id'],$chatId)) Response::error('Forbidden', 403);
 
-        $data = $this->jsonBody();
+        $data =$this->jsonBody();
         $text = trim($data['text'] ?? '');
         if (!$text) Response::error('Пустое сообщение');
         if (mb_strlen($text) > 4000) Response::error('Слишком длинное сообщение');
 
-        $stmt = Database::get()->prepare(
-            'INSERT INTO messages (chat_id, sender_id, text) VALUES (?, ?, ?)'
-        );
-        $stmt->execute([$chatId, $me['id'], $text]);
-        $id = (int)Database::get()->lastInsertId();
+        $stmt = Database::get()->prepare( 'INSERT INTO messages (chat_id, sender_id, text) VALUES (?, ?, ?)' );$stmt->execute([$chatId,$me['id'], $text]);$id = (int)Database::get()->lastInsertId();
 
         $stmt = Database::get()->prepare('SELECT * FROM messages WHERE id = ?');
         $stmt->execute([$id]);
-        $row = $stmt->fetch();
+        $row =$stmt->fetch();
 
         Response::json([
             'id' => (int)$row['id'],
@@ -95,10 +88,10 @@ class ChatController
         ], 201);
     }
 
-    private function inChat(int $userId, int $chatId): bool
+    private function inChat(int $userId, int$chatId): bool
     {
         $stmt = Database::get()->prepare('SELECT 1 FROM chat_participants WHERE chat_id = ? AND user_id = ?');
-        $stmt->execute([$chatId, $userId]);
+        $stmt->execute([$chatId,$userId]);
         return (bool)$stmt->fetchColumn();
     }
 

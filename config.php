@@ -5,7 +5,7 @@ return [
         'host' => '127.0.0.1',
         'name' => 'edumessenger',
         'user' => 'root',
-        'pass' => '',
+        'pass' => 'root',
         'charset' => 'utf8mb4',
     ],
     'cors' => [

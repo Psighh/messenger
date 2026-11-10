@@ -1,11 +1,11 @@
 RewriteEngine On
-RewriteBase /App/
 
-# 1. Статика из public/ (файлы существуют) — отдаём напрямую
-RewriteCond %{DOCUMENT_ROOT}/App/public/$1 -f
-RewriteRule ^(.*)$ /App/public/$1 [L]
+# 1. Если запрашиваемый файл или папка существует в public/, отдаем напрямую
+RewriteCond %{DOCUMENT_ROOT}/$1 -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/$1 -d
+RewriteRule ^(.*)$ public/$1 [L]
 
-# 2. Всё остальное (включая /App/api/...) — на public/index.php
+# 2. Всё остальное перенаправляем на index.php
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
-RewriteRule ^ public/index.php [L,QSA]
+RewriteRule ^(.*)$ public/index.php [L,QSA]

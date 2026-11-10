@@ -5,7 +5,7 @@ class GroupController
     public function publicList(): void
     {
         $rows = Database::get()->query(
-            'SELECT id, name, department_id FROM groups ORDER BY name'
+            'SELECT id, name, department_id FROM `groups` ORDER BY name'
         )->fetchAll();
         Response::json(array_map(fn($r) => [
             'id' => (int)$r['id'],
@@ -18,7 +18,7 @@ class GroupController
     {
         Auth::requireAdmin();
         $rows = Database::get()->query(
-            'SELECT id, name, department_id FROM groups ORDER BY name'
+            'SELECT id, name, department_id FROM `groups` ORDER BY name'
         )->fetchAll();
         Response::json(array_map(fn($r) => [
             'id' => (int)$r['id'],
@@ -36,7 +36,7 @@ class GroupController
         if (!$name) Response::error('Введите название');
         if (!$deptId) Response::error('Выберите кафедру');
 
-        $stmt = Database::get()->prepare('INSERT INTO groups (name, department_id) VALUES (?, ?)');
+        $stmt = Database::get()->prepare('INSERT INTO `groups` (name, department_id) VALUES (?, ?)');
         $stmt->execute([$name, $deptId]);
         $id = (int)Database::get()->lastInsertId();
         Response::json(['id' => $id, 'name' => $name, 'departmentId' => $deptId], 201);
@@ -52,7 +52,7 @@ class GroupController
         if (!$name) Response::error('Введите название');
         if (!$deptId) Response::error('Выберите кафедру');
 
-        $stmt = Database::get()->prepare('UPDATE groups SET name = ?, department_id = ? WHERE id = ?');
+        $stmt = Database::get()->prepare('UPDATE `groups` SET name = ?, department_id = ? WHERE id = ?');
         $stmt->execute([$name, $deptId, $id]);
         Response::json(['id' => $id, 'name' => $name, 'departmentId' => $deptId]);
     }
@@ -60,7 +60,7 @@ class GroupController
     public function destroy(array $params): void
     {
         Auth::requireAdmin();
-        $stmt = Database::get()->prepare('DELETE FROM groups WHERE id = ?');
+        $stmt = Database::get()->prepare('DELETE FROM `groups` WHERE id = ?');
         $stmt->execute([(int)$params['id']]);
         Response::noContent();
     }

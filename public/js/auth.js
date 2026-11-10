@@ -6,7 +6,7 @@
 'use strict';
 
 /* ====== КОНФИГ ====== */
-const API_BASE = '/App/public/index.php/api';         // ← поменяй на свой backend
+const API_BASE = '/api';        // ← поменяй на свой backend
 const USE_MOCK = false;            // ← false, когда бэкенд готов
 const TOKEN_KEY = 'em_token';
 const USER_KEY  = 'em_user';

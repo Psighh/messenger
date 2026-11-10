@@ -88,6 +88,7 @@ $prefixes = [
     '/public/index.php',
     '/public',
     '/App',
+    '/index.php',
 ];
 foreach ($prefixes as $prefix) {
     if ($uri === $prefix) { $uri = '/'; break; }
@@ -100,7 +101,7 @@ if ($uri === '') $uri = '/';
 
 // ===== Редирект корня на страницу входа =====
 if ($uri === '/') {
-    header('Location: /App/public/auth.html');
+    header('Location: /auth.html');
     exit;
 }
 

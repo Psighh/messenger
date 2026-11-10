@@ -64,7 +64,6 @@ class BroadcastController
         $user = Auth::requireUser();
         $role = $user['role'];
 
-        // Админ видит все рассылки; студенты и преподаватели — по иерархии.
         if ($role === 'admin') {
             $sql = 'SELECT b.*, 
                     (SELECT COUNT(*) FROM broadcast_reads r WHERE r.broadcast_id = b.id AND r.user_id = ?) AS is_read
@@ -106,7 +105,6 @@ class BroadcastController
         Response::json(['ok' => true]);
     }
 
-    /* ===== Внутренние ===== */
     private function format(array $r): array
     {
         return [
