@@ -28,8 +28,9 @@ class BroadcastController
         if (!in_array($scope, ['university', 'department', 'group'], true)) {
             Response::error('Недопустимый уровень');
         }
-        $departmentId = $scope === 'university' ? null : (int)($data['departmentId'] ?? 0) ?: null;
-        $groupId      = $scope === 'group' ? (int)($data['groupId'] ?? 0) ?: null : null;
+        
+        $departmentId = ($scope === 'university') ? null : ((int)($data['departmentId'] ?? 0) ?: null);
+        $groupId      = ($scope === 'group') ? ((int)($data['groupId'] ?? 0) ?: null) : null;
 
         if ($scope === 'department' && !$departmentId) Response::error('Выберите кафедру');
         if ($scope === 'group' && !$groupId)           Response::error('Выберите группу');

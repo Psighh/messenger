@@ -1,86 +1,59 @@
 <?php
-// src/Controllers/AuthController.php
-class AuthController
+// src/Auth.php
+class Auth
 {
-    public function login(): void
+    public static function issueToken(int $userId): string
     {
-        $data = $this->jsonBody();
-        $email = trim($data['email'] ?? '');
-        $password = $data['password'] ?? '';
-
-        if (!$email || !$password) Response::error('Введите почту и пароль');
-
-        $stmt = Database::get()->prepare('SELECT * FROM users WHERE email = ?');
-        $stmt->execute([$email]);
-        $user = $stmt->fetch();
-
-        if (!$user || !password_verify($password, $user['password_hash'])) {
-            Response::error('Неверная почта или пароль', 401);
-        }
-
-        $token = Auth::issueToken((int)$user['id']);
-        Response::json([
-            'token' => $token,
-            'user'  => Auth::publicUser($user),
-        ]);
+        $payload = json_encode(['uid' => $userId, 'time' => time()]);
+        return base64_encode($payload);
     }
 
-    public function register(): void
+    public static function requireUser(): array
     {
-        $data = $this->jsonBody();
-        $name     = trim($data['name'] ?? '');
-        $email    = trim($data['email'] ?? '');
-        $password = $data['password'] ?? '';
-        $role     = $data['role'] ?? 'student';
-
-        if (mb_strlen($name) < 2)  Response::error('Введите ФИО');
-        if (!filter_var($email, FILTER_VALIDATE_EMAIL)) Response::error('Некорректная почта');
-        if (strlen($password) < 8) Response::error('Пароль должен быть не короче 8 символов');
-        if (!in_array($role, ['student', 'teacher'], true)) Response::error('Недопустимая роль');
-
-        // уникальность email
-        $stmt = Database::get()->prepare('SELECT id FROM users WHERE email = ?');
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) Response::error('Пользователь с такой почтой уже существует');
-
-        $groupId = null;
-        $departmentId = null;
-        if ($role === 'student') {
-            $groupId = (int)($data['groupId'] ?? 0);
-            if (!$groupId) Response::error('Выберите группу');
-            $stmt = Database::get()->prepare('SELECT department_id FROM groups WHERE id = ?');
-            $stmt->execute([$groupId]);
-            $g = $stmt->fetch();
-            if (!$g) Response::error('Группа не найдена');
-            $departmentId = (int)$g['department_id'];
-        } else {
-            $departmentId = (int)($data['departmentId'] ?? 0);
-            if (!$departmentId) Response::error('Выберите кафедру');
+        $headers = getallheaders();
+        $authHeader = $headers['Authorization'] ?? $headers['authorization'] ?? '';
+        
+        if (!preg_match('/Bearer\s+(\S+)/', $authHeader, $matches)) {
+            Response::error('Unauthorized', 401);
         }
 
-        $hash = password_hash($password, PASSWORD_DEFAULT);
-        $stmt = Database::get()->prepare(
-            'INSERT INTO users (name, email, password_hash, role, group_id, department_id)
-             VALUES (?, ?, ?, ?, ?, ?)'
-        );
-        $stmt->execute([$name, $email, $hash, $role, $groupId, $departmentId]);
+        $token = $matches[1];
+        $decoded = json_decode(base64_decode($token), true);
 
-        $userId = (int)Database::get()->lastInsertId();
+        if (!$decoded || !isset($decoded['uid'])) {
+            Response::error('Invalid token', 401);
+        }
+
+        $userId = (int)$decoded['uid'];
         $stmt = Database::get()->prepare('SELECT * FROM users WHERE id = ?');
         $stmt->execute([$userId]);
         $user = $stmt->fetch();
 
-        $token = Auth::issueToken($userId);
-        Response::json([
-            'token' => $token,
-            'user'  => Auth::publicUser($user),
-        ], 201);
+        if (!$user) {
+            Response::error('User not found', 401);
+        }
+
+        return $user;
     }
 
-    private function jsonBody(): array
+    public static function requireAdmin(): array
     {
-        $raw = file_get_contents('php://input');
-        $data = json_decode($raw, true);
-        return is_array($data) ? $data : [];
+        $user = self::requireUser();
+        if ($user['role'] !== 'admin') {
+            Response::error('Forbidden: Admin only', 403);
+        }
+        return $user;
+    }
+
+    public static function publicUser(array $user): array
+    {
+        return [
+            'id' => (int)$user['id'],
+            'name' => $user['name'],
+            'email' => $user['email'],
+            'role' => $user['role'],
+            'groupId' => isset($user['group_id']) && $user['group_id'] !== null ? (int)$user['group_id'] : null,
+            'departmentId' => isset($user['department_id']) && $user['department_id'] !== null ? (int)$user['department_id'] : null,
+        ];
     }
 }

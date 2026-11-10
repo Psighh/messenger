@@ -18,12 +18,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 // ===== Автозагрузка =====
 spl_autoload_register(function ($class) {
-    // Контроллеры лежат в src/Controllers/
-    $file = __DIR__ . '/../src/Controllers/' . $class . '.php';
-    if (file_exists($file)) { require $file; return; }
-    // Остальные — в src/
+    // Сначала проверяем основные классы в src/ (например, Auth.php, Database.php, Response.php, Router.php)
     $file = __DIR__ . '/../src/' . $class . '.php';
-    if (file_exists($file)) require $file;
+    if (file_exists($file)) {
+        require $file;
+        return;
+    }
+    
+    // Затем проверяем контроллеры в src/Controllers/
+    $file = __DIR__ . '/../src/Controllers/' . $class . '.php';
+    if (file_exists($file)) {
+        require $file;
+        return;
+    }
 });
 
 require __DIR__ . '/../src/Router.php';
