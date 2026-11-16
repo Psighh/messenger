@@ -3,38 +3,54 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>EduMessenger — Мессенджер</title>
+    <meta name="theme-color" content="#101426" />
+    <title>СибАДИ — Мессенджер</title>
     <link rel="stylesheet" href="styles/messenger.css" />
 </head>
 <body>
-
-    <!-- ===== APP LAYOUT ===== -->
     <div class="app">
-
-        <!-- ===== LEFT: Список чатов ===== -->
+        <!-- Левая панель: бренд, профиль и список переписок -->
         <aside class="chat-list-panel" id="chatListPanel">
-
-            <!-- Header -->
             <header class="chat-list-header">
+                <div class="brand-row">
+                    <div class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 48 48" fill="none">
+                            <path d="M3 16.5 24 6l21 10.5L24 27 3 16.5Z" fill="currentColor" />
+                            <path d="M11 21v10.5L24 38l13-6.5V21l-13 6.5L11 21Z" fill="currentColor" opacity=".78" />
+                            <path d="M43 18v12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="brand-copy">
+                        <strong>СибАДИ</strong>
+                        <span>Общайся. Учись. Будь на связи.</span>
+                    </div>
+                    <button class="icon-btn settings-trigger" id="settingsBtn" title="Настройки" aria-label="Настройки">⚙</button>
+                </div>
+
                 <div class="user-chip" id="userChip">
                     <div class="avatar" id="myAvatar">U</div>
                     <div class="user-chip-info">
                         <span class="user-chip-name" id="myName">Пользователь</span>
                         <span class="user-chip-role" id="myRole">Студент</span>
                     </div>
+                    <span class="profile-online-dot" title="Аккаунт"></span>
                 </div>
-                <button class="icon-btn" id="settingsBtn" title="Настройки">⚙️</button>
             </header>
 
-            <!-- Поиск -->
             <div class="chat-search">
-                <input type="search" id="chatSearch" placeholder="Поиск чатов..." />
-                <span class="search-icon">🔍</span>
+                <span class="search-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><circle cx="10.8" cy="10.8" r="6.8" stroke="currentColor" stroke-width="2"/><path d="m16 16 5 5" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                </span>
+                <input type="search" id="chatSearch" placeholder="Поиск по чатам..." autocomplete="off" />
+                <kbd>/</kbd>
             </div>
 
-            <!-- Закреплённый чат рассылок -->
+            <div class="sidebar-section-label">СООБЩЕНИЯ</div>
+
             <div class="pinned-broadcast" id="pinnedBroadcast" data-chat-id="broadcast" role="button" tabindex="0">
-                <div class="avatar broadcast-avatar">📢</div>
+                <div class="avatar broadcast-avatar" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none"><path d="M4 10v4h3l9 4V6l-9 4H4Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="m8 14 1.5 5h3L11 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/><path d="M19 9.5a4 4 0 0 1 0 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                </div>
                 <div class="chat-item-info">
                     <div class="chat-item-top">
                         <span class="chat-item-name">Рассылки</span>
@@ -45,251 +61,164 @@
                 <span class="unread-badge hidden" id="broadcastUnread">0</span>
             </div>
 
-            <!-- Список чатов -->
             <div class="chat-items" id="chatItems"></div>
+            <div class="chat-list-empty hidden" id="chatListEmpty"><p>Чатов пока нет</p></div>
 
-            <!-- Empty -->
-            <div class="chat-list-empty hidden" id="chatListEmpty">
-                <p>Чатов пока нет</p>
+            <div class="sidebar-footer">
+                <span class="sidebar-footer-dot"></span>
+                <span>Университетская сеть</span>
+                <span class="sidebar-footer-version">EduMessenger</span>
             </div>
         </aside>
 
-        <!-- ===== CENTER: Область чата ===== -->
+        <!-- Центральная область -->
         <main class="chat-panel" id="chatPanel">
-
-            <!-- Placeholder -->
             <div class="chat-placeholder" id="chatPlaceholder">
-                <div class="placeholder-icon">💬</div>
-                <h2>Выберите чат</h2>
-                <p>Начните общение или откройте рассылки</p>
+                <div class="placeholder-orb">
+                    <div class="placeholder-icon">✉</div>
+                </div>
+                <h2>Ваше пространство для общения</h2>
+                <p>Выберите чат слева, чтобы продолжить переписку</p>
             </div>
 
-            <!-- Активный чат -->
             <div class="chat-active hidden" id="chatActive">
                 <header class="chat-header">
-                    <button class="icon-btn back-btn" id="backBtn" title="Назад">←</button>
-                    <div class="avatar" id="chatAvatar">U</div>
+                    <button class="icon-btn back-btn" id="backBtn" title="Назад" aria-label="Назад">←</button>
+                    <div class="avatar avatar-lg" id="chatAvatar">U</div>
                     <div class="chat-header-info">
                         <span class="chat-header-name" id="chatName">Чат</span>
                         <span class="chat-header-status" id="chatStatus">в сети</span>
                     </div>
-                    <div class="chat-header-actions">
-                        <button class="icon-btn" id="chatDeleteBtn" title="Удалить чат">🗑️</button>
-                        <button class="icon-btn" id="chatInfoBtn" title="Информация">ℹ️</button>
+
+                    <div class="chat-header-actions" id="chatHeaderActions">
+                        <button class="icon-btn menu-trigger" id="chatMenuToggle" title="Действия чата" aria-label="Действия чата" aria-expanded="false">⋯</button>
+                        <div class="chat-menu hidden" id="chatMenu" role="menu">
+                            <button type="button" class="chat-menu-item" id="chatInfoBtn" role="menuitem">
+                                <span class="menu-item-icon">ⓘ</span>
+                                <span>Информация</span>
+                            </button>
+                            <button type="button" class="chat-menu-item danger" id="chatDeleteBtn" role="menuitem">
+                                <span class="menu-item-icon">⌫</span>
+                                <span>Удалить чат</span>
+                            </button>
+                        </div>
                     </div>
                 </header>
 
                 <div class="messages" id="messages">
-                    <div class="messages-empty hidden" id="messagesEmpty">
-                        <p>Сообщений пока нет. Напишите первым!</p>
-                    </div>
+                    <div class="messages-empty hidden" id="messagesEmpty"><p>Сообщений пока нет. Напишите первым!</p></div>
                 </div>
 
                 <div class="composer" id="composer">
-                    <textarea id="messageInput" placeholder="Напишите сообщение..." rows="1" maxlength="4000"></textarea>
-                    <button class="send-btn" id="sendBtn" title="Отправить">➤</button>
-                </div>
-            </div>
-
-        </main>
-
-    </div>
-
-    <!-- ===== SETTINGS MODAL ===== -->
-    <div class="modal-overlay hidden" id="settingsOverlay">
-        <div class="modal settings-modal">
-            <div class="modal-header">
-                <h2>Настройки</h2>
-                <button class="modal-close" id="settingsClose">✕</button>
-            </div>
-            <div class="modal-body">
-
-                <!-- Профиль -->
-                <section class="settings-section">
-                    <h3>Профиль</h3>
-                    <div class="settings-profile">
-                        <div class="avatar avatar-lg" id="settingsAvatar">U</div>
-                        <div class="settings-profile-info">
-                            <span class="settings-profile-name" id="settingsName">Пользователь</span>
-                            <span class="settings-profile-role" id="settingsRole">Студент</span>
+                    <button type="button" class="composer-icon-btn" id="attachBtn" title="Прикрепить файл (скоро)" aria-label="Прикрепить файл">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="m8.5 12.5 6.7-6.7a4 4 0 0 1 5.7 5.7l-9.2 9.2a6 6 0 0 1-8.5-8.5l9-9" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                    </button>
+                    <div class="composer-field-wrap">
+                        <textarea id="messageInput" placeholder="Напишите сообщение..." rows="1" maxlength="4000" aria-label="Текст сообщения"></textarea>
+                        <div class="emoji-picker hidden" id="emojiPicker" aria-label="Выбор эмодзи">
+                            <button type="button" data-emoji="😀">😀</button>
+                            <button type="button" data-emoji="😂">😂</button>
+                            <button type="button" data-emoji="😊">😊</button>
+                            <button type="button" data-emoji="😍">😍</button>
+                            <button type="button" data-emoji="👍">👍</button>
+                            <button type="button" data-emoji="👏">👏</button>
+                            <button type="button" data-emoji="❤️">❤️</button>
+                            <button type="button" data-emoji="🔥">🔥</button>
+                            <button type="button" data-emoji="🎓">🎓</button>
+                            <button type="button" data-emoji="✅">✅</button>
+                            <button type="button" data-emoji="🤔">🤔</button>
+                            <button type="button" data-emoji="🙌">🙌</button>
                         </div>
                     </div>
-                    <div class="form-field">
-                        <label for="settingsStatus">Статус «О себе»</label>
-                        <input type="text" id="settingsStatus" placeholder="Например: На связи до 18:00" maxlength="120" />
-                    </div>
-                </section>
+                    <button type="button" class="composer-icon-btn emoji-trigger" id="emojiBtn" title="Эмодзи" aria-label="Эмодзи" aria-expanded="false">☺</button>
+                    <button class="send-btn" id="sendBtn" title="Отправить" aria-label="Отправить">
+                        <svg viewBox="0 0 24 24" fill="none"><path d="m4 4 17 8-17 8 3-8-3-8Z" fill="currentColor"/><path d="M7 12h13" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
 
-                <!-- Тема -->
+    <!-- Настройки -->
+    <div class="modal-overlay hidden" id="settingsOverlay">
+        <div class="modal settings-modal">
+            <div class="modal-header"><h2>Настройки</h2><button class="modal-close" id="settingsClose" aria-label="Закрыть">✕</button></div>
+            <div class="modal-body">
+                <section class="settings-section">
+                    <h3>Профиль</h3>
+                    <div class="settings-profile"><div class="avatar avatar-lg" id="settingsAvatar">U</div><div class="settings-profile-info"><span class="settings-profile-name" id="settingsName">Пользователь</span><span class="settings-profile-role" id="settingsRole">Студент</span></div></div>
+                    <div class="form-field"><label for="settingsStatus">Статус «О себе»</label><input type="text" id="settingsStatus" placeholder="Например: На связи до 18:00" maxlength="120" /></div>
+                </section>
                 <section class="settings-section">
                     <h3>Тема оформления</h3>
                     <div class="theme-selector" id="themeSelector">
-                        <button type="button" class="theme-option selected" data-theme-choice="light">
-                            <span class="theme-preview light"></span>
-                            <span>Светлая</span>
-                        </button>
-                        <button type="button" class="theme-option" data-theme-choice="dark">
-                            <span class="theme-preview dark"></span>
-                            <span>Тёмная</span>
-                        </button>
+                        <button type="button" class="theme-option" data-theme-choice="light"><span class="theme-preview light"></span><span>Светлая</span></button>
+                        <button type="button" class="theme-option selected" data-theme-choice="dark"><span class="theme-preview dark"></span><span>Тёмная</span></button>
                     </div>
                 </section>
-
-                <!-- Уведомления -->
                 <section class="settings-section">
                     <h3>Уведомления</h3>
-                    <label class="toggle-row">
-                        <span>Включить уведомления</span>
-                        <input type="checkbox" id="notificationsEnabled" checked />
-                    </label>
-                    <label class="toggle-row">
-                        <span>Звук</span>
-                        <input type="checkbox" id="notificationsSound" checked />
-                    </label>
-
-                    <div class="settings-sub">
-                        <h4>Тихие часы</h4>
-                        <p class="hint">В это время уведомления не будут приходить.</p>
-                        <div class="time-range">
-                            <label>
-                                С
-                                <input type="time" id="quietFrom" value="22:00" />
-                            </label>
-                            <label>
-                                По
-                                <input type="time" id="quietTo" value="08:00" />
-                            </label>
-                        </div>
-                    </div>
+                    <label class="toggle-row"><span>Включить уведомления</span><input type="checkbox" id="notificationsEnabled" checked /></label>
+                    <label class="toggle-row"><span>Звук</span><input type="checkbox" id="notificationsSound" checked /></label>
+                    <div class="settings-sub"><h4>Тихие часы</h4><p class="hint">В это время уведомления не будут приходить.</p><div class="time-range"><label>С <input type="time" id="quietFrom" value="22:00" /></label><label>По <input type="time" id="quietTo" value="08:00" /></label></div></div>
                 </section>
-
                 <div class="settings-footer">
                     <button type="button" class="btn-danger" id="logoutBtn">Выйти из аккаунта</button>
-                    <div style="display: flex; gap: 10px;">
-                        <button type="button" class="btn-secondary" id="settingsCancel">Отмена</button>
-                        <button type="button" class="btn-primary" id="settingsSave">Сохранить</button>
-                    </div>
+                    <div class="settings-footer-actions"><button type="button" class="btn-secondary" id="settingsCancel">Отмена</button><button type="button" class="btn-primary" id="settingsSave">Сохранить</button></div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== CHAT INFO MODAL ===== -->
+    <!-- Информация о собеседнике -->
     <div class="modal-overlay hidden" id="infoOverlay">
         <div class="modal modal-sm">
-            <div class="modal-header">
-                <h2>Информация о пользователе</h2>
-                <button class="modal-close" id="infoClose">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="info-profile">
-                    <div class="avatar avatar-lg" id="infoAvatar">U</div>
-                    <h3 id="infoName">Чат</h3>
-                    <p id="infoRole" class="info-role"></p>
-                    <p id="infoStatus" class="info-status"></p>
-                    <p id="infoDept" class="info-status" style="margin-top: 6px;"></p>
-                    <p id="infoGroup" class="info-status"></p>
-                    <p id="infoAbout" class="info-about"></p>
-                </div>
-            </div>
+            <div class="modal-header"><h2>Информация о пользователе</h2><button class="modal-close" id="infoClose" aria-label="Закрыть">✕</button></div>
+            <div class="modal-body"><div class="info-profile"><div class="avatar avatar-lg" id="infoAvatar">U</div><h3 id="infoName">Чат</h3><p id="infoRole" class="info-role"></p><p id="infoStatus" class="info-status"></p><p id="infoDept" class="info-status"></p><p id="infoGroup" class="info-status"></p><p id="infoAbout" class="info-about"></p></div></div>
         </div>
     </div>
 
-    <!-- ===== SEARCH MODAL ===== -->
+    <!-- Поиск пользователей -->
     <div class="modal-overlay hidden" id="searchOverlay">
         <div class="modal">
-            <div class="modal-header">
-                <h2>Поиск пользователей</h2>
-                <button class="modal-close" id="searchClose">✕</button>
-            </div>
+            <div class="modal-header"><h2>Поиск пользователей</h2><button class="modal-close" id="searchClose" aria-label="Закрыть">✕</button></div>
             <div class="modal-body">
-                <div class="form-field">
-                    <input type="text" id="userQueryInput" placeholder="Введите имя или фамилию..." />
-                </div>
+                <div class="form-field"><input type="text" id="userQueryInput" placeholder="Введите имя или фамилию..." /></div>
                 <div class="search-filters-grid">
-                    <div class="form-field">
-                        <label>Роль</label>
-                        <select id="filterRole">
-                            <option value="">Все роли</option>
-                            <option value="student">Студенты</option>
-                            <option value="teacher">Преподаватели</option>
-                        </select>
-                    </div>
-                    <div class="form-field">
-                        <label>Кафедра</label>
-                        <select id="filterDept">
-                            <option value="">Все кафедры</option>
-                        </select>
-                    </div>
-                    <div class="form-field" id="filterGroupWrap">
-                        <label>Группа</label>
-                        <select id="filterGroup">
-                            <option value="">Все группы</option>
-                        </select>
-                    </div>
+                    <div class="form-field"><label>Роль</label><select id="filterRole"><option value="">Все роли</option><option value="student">Студенты</option><option value="teacher">Преподаватели</option></select></div>
+                    <div class="form-field"><label>Кафедра</label><select id="filterDept"><option value="">Все кафедры</option></select></div>
+                    <div class="form-field" id="filterGroupWrap"><label>Группа</label><select id="filterGroup"><option value="">Все группы</option></select></div>
                 </div>
-                <div class="search-results-list" id="searchResultsList">
-                    <p class="search-hint">Введите запрос для поиска...</p>
-                </div>
+                <div class="search-results-list" id="searchResultsList"><p class="search-hint">Введите запрос для поиска...</p></div>
             </div>
         </div>
     </div>
 
-    <!-- ===== USER PROFILE MODAL ===== -->
+    <!-- Профиль найденного пользователя -->
     <div class="modal-overlay hidden" id="userProfileOverlay">
         <div class="modal modal-sm">
-            <div class="modal-header">
-                <h2>Профиль пользователя</h2>
-                <button class="modal-close" id="userProfileClose">✕</button>
-            </div>
-            <div class="modal-body">
-                <div class="info-profile">
-                    <div class="avatar avatar-lg" id="upAvatar">U</div>
-                    <h3 id="upName">Имя</h3>
-                    <p id="upRole" class="info-role">Роль</p>
-                    <p id="upOnline" class="info-status"></p>
-                    <p id="upDept" class="info-status" style="margin-top: 6px;"></p>
-                    <p id="upGroup" class="info-status"></p>
-                    <p id="upStatus" class="info-about"></p>
-                    <button type="button" class="btn-primary" id="startChatBtn" style="margin-top: 16px; width: 100%;">Начать чат</button>
-                </div>
-            </div>
+            <div class="modal-header"><h2>Профиль пользователя</h2><button class="modal-close" id="userProfileClose" aria-label="Закрыть">✕</button></div>
+            <div class="modal-body"><div class="info-profile"><div class="avatar avatar-lg" id="upAvatar">U</div><h3 id="upName">Имя</h3><p id="upRole" class="info-role">Роль</p><p id="upOnline" class="info-status"></p><p id="upDept" class="info-status"></p><p id="upGroup" class="info-status"></p><p id="upStatus" class="info-about"></p><button type="button" class="btn-primary profile-start-chat" id="startChatBtn">Начать чат</button></div></div>
         </div>
     </div>
 
-    <!-- ===== DELETE CHAT CONFIRM MODAL ===== -->
+    <!-- Удаление чата -->
     <div class="modal-overlay hidden" id="deleteChatOverlay">
         <div class="modal modal-sm">
-            <div class="modal-header">
-                <h2>Удаление чата</h2>
-                <button class="modal-close" id="deleteChatClose">✕</button>
-            </div>
-            <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; text-align: center;">
-                <p>Как вы хотите удалить этот чат?</p>
-                <button type="button" class="btn-secondary" id="deleteForMeBtn">Только у себя</button>
-                <button type="button" class="btn-danger" id="deleteForAllBtn">У всех</button>
-            </div>
+            <div class="modal-header"><h2>Удаление чата</h2><button class="modal-close" id="deleteChatClose" aria-label="Закрыть">✕</button></div>
+            <div class="modal-body modal-confirm"><p>Как вы хотите удалить этот чат?</p><button type="button" class="btn-secondary" id="deleteForMeBtn">Только у себя</button><button type="button" class="btn-danger" id="deleteForAllBtn">У всех</button></div>
         </div>
     </div>
 
-    <!-- ===== DELETE MESSAGE CONFIRM MODAL ===== -->
+    <!-- Удаление сообщения -->
     <div class="modal-overlay hidden" id="deleteMessageOverlay">
         <div class="modal modal-sm">
-            <div class="modal-header">
-                <h2>Удаление сообщения</h2>
-                <button class="modal-close" id="deleteMessageClose">✕</button>
-            </div>
-            <div class="modal-body" style="display: flex; flex-direction: column; gap: 12px; text-align: center;">
-                <p>Как вы хотите удалить это сообщение?</p>
-                <button type="button" class="btn-secondary" id="deleteMessageForMeBtn">Только у себя</button>
-                <button type="button" class="btn-danger" id="deleteMessageForAllBtn">У всех</button>
-            </div>
+            <div class="modal-header"><h2>Удаление сообщения</h2><button class="modal-close" id="deleteMessageClose" aria-label="Закрыть">✕</button></div>
+            <div class="modal-body modal-confirm"><p>Как вы хотите удалить это сообщение?</p><button type="button" class="btn-secondary" id="deleteMessageForMeBtn">Только у себя</button><button type="button" class="btn-danger" id="deleteMessageForAllBtn">У всех</button></div>
         </div>
     </div>
 
-    <!-- ===== TOAST ===== -->
-    <div class="toast-container" id="toastContainer"></div>
-
+    <div class="toast-container" id="toastContainer" aria-live="polite"></div>
     <script src="js/messenger.js"></script>
 </body>
 </html>

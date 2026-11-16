@@ -39,7 +39,7 @@ const state = {
     selectedUserProfile: null,
     selectedMessageIdForDelete: null,
     settings: {
-        theme: 'light',
+        theme: 'dark',
         status: '',
         notificationsEnabled: true,
         notificationsSound: true,
@@ -76,6 +76,12 @@ const el = {
     chatStatus: $('chatStatus'),
     chatInfoBtn: $('chatInfoBtn'),
     chatDeleteBtn: $('chatDeleteBtn'),
+    chatMenuToggle: $('chatMenuToggle'),
+    chatMenu: $('chatMenu'),
+    chatHeaderActions: $('chatHeaderActions'),
+    attachBtn: $('attachBtn'),
+    emojiBtn: $('emojiBtn'),
+    emojiPicker: $('emojiPicker'),
     messages: $('messages'),
     messagesEmpty: $('messagesEmpty'),
     composer: $('composer'),
@@ -117,7 +123,7 @@ const el = {
    ========================================================= */
 function toast(msg, type = 'success') {
     const t = document.createElement('div');
-    t.className = `toast ${type === 'error' ? 'error' : ''}`;
+    t.className = `toast ${type === 'error' ? 'error' : type === 'info' ? 'info' : ''}`;
     t.textContent = msg;
     el.toastContainer.appendChild(t);
     setTimeout(() => t.remove(), 3000);
@@ -184,8 +190,10 @@ function applyTheme(theme) {
 }
 
 function loadSettings() {
+    const userId = state.me?.id || 'guest';
     try {
-        const saved = JSON.parse(localStorage.getItem('em_settings'));
+        const raw = localStorage.getItem(`em_settings_${userId}`) || localStorage.getItem('em_settings');
+        const saved = raw ? JSON.parse(raw) : null;
         if (saved) Object.assign(state.settings, saved);
     } catch { }
     applyTheme(state.settings.theme);
@@ -266,8 +274,9 @@ function openChat(chatId) {
         el.chatAvatar.classList.add('broadcast-avatar');
         el.chatName.textContent = 'Рассылки';
         el.chatStatus.textContent = 'Уведомления от администрации';
-        el.chatInfoBtn.style.display = 'none';
-        if (el.chatDeleteBtn) el.chatDeleteBtn.style.display = 'none';
+        if (el.chatMenuToggle) el.chatMenuToggle.style.display = 'none';
+        if (el.chatMenu) el.chatMenu.classList.add('hidden');
+        if (el.chatMenuToggle) el.chatMenuToggle.setAttribute('aria-expanded', 'false');
         el.composer.style.display = 'none';
 
         state.broadcast.forEach(async b => {
@@ -294,8 +303,9 @@ function openChat(chatId) {
     el.chatAvatar.classList.remove('broadcast-avatar');
     el.chatName.textContent = chat.name;
     el.chatStatus.textContent = formatOnlineStatus(chat.peerUpdatedAt);
-    el.chatInfoBtn.style.display = '';
-    if (el.chatDeleteBtn) el.chatDeleteBtn.style.display = '';
+    if (el.chatMenuToggle) el.chatMenuToggle.style.display = '';
+    if (el.chatMenu) el.chatMenu.classList.add('hidden');
+    if (el.chatMenuToggle) el.chatMenuToggle.setAttribute('aria-expanded', 'false');
     el.composer.style.display = '';
     chat.unread = 0;
     renderMessages();
@@ -325,11 +335,9 @@ function renderMessages() {
         : (state.messages[chatId] || []);
 
     if (!list.length) {
-        el.messages.innerHTML = '';
-        el.messagesEmpty.classList.remove('hidden');
+        el.messages.innerHTML = '<div class="messages-empty"><p>Сообщений пока нет. Напишите первым!</p></div>';
         return;
     }
-    el.messagesEmpty.classList.add('hidden');
 
     el.messages.innerHTML = list.map(m => {
         const mine = m.senderId === state.me?.id;
@@ -399,6 +407,8 @@ async function sendMessage() {
     const chatId = state.activeChatId;
     el.messageInput.value = '';
     el.messageInput.style.height = 'auto';
+    if (el.emojiPicker) el.emojiPicker.classList.add('hidden');
+    if (el.emojiBtn) el.emojiBtn.setAttribute('aria-expanded', 'false');
 
     const optimistic = {
         id: Date.now(),
@@ -438,6 +448,10 @@ function openSettings() {
         if (userSettings) Object.assign(state.settings, userSettings);
     } catch { }
 
+    applyTheme(state.settings.theme);
+    el.themeSelector.querySelectorAll('.theme-option').forEach(b =>
+        b.classList.toggle('selected', b.dataset.themeChoice === state.settings.theme)
+    );
     el.settingsStatus.value = state.me?.status || '';
     el.notificationsEnabled.checked = state.settings.notificationsEnabled;
     el.notificationsSound.checked = state.settings.notificationsSound;
@@ -470,6 +484,12 @@ function saveSettingsFromUI() {
 
     closeSettings();
     toast('Настройки сохранены');
+}
+
+/* Закрытие контекстного меню действий чата */
+function closeChatMenu() {
+    if (el.chatMenu) el.chatMenu.classList.add('hidden');
+    if (el.chatMenuToggle) el.chatMenuToggle.setAttribute('aria-expanded', 'false');
 }
 
 /* =========================================================
@@ -774,8 +794,19 @@ function bindEvents() {
         }
     });
 
+    if (el.chatMenuToggle) {
+        el.chatMenuToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (!state.activeChatId || state.activeChatId === 'broadcast') return;
+            const isOpening = el.chatMenu.classList.contains('hidden');
+            el.chatMenu.classList.toggle('hidden');
+            el.chatMenuToggle.setAttribute('aria-expanded', String(isOpening));
+        });
+    }
+
     if (el.chatDeleteBtn) {
         el.chatDeleteBtn.addEventListener('click', () => {
+            closeChatMenu();
             if (!state.activeChatId || state.activeChatId === 'broadcast') return;
             $('deleteChatOverlay').classList.remove('hidden');
         });
@@ -849,14 +880,64 @@ function bindEvents() {
         );
     });
 
-    el.chatInfoBtn.addEventListener('click', openChatInfo);
+    el.chatInfoBtn.addEventListener('click', () => {
+        closeChatMenu();
+        openChatInfo();
+    });
     el.infoClose.addEventListener('click', () => el.infoOverlay.classList.add('hidden'));
     el.infoOverlay.addEventListener('click', (e) => {
         if (e.target === el.infoOverlay) el.infoOverlay.classList.add('hidden');
     });
 
+    document.addEventListener('click', (e) => {
+        if (el.chatMenu && !el.chatMenu.classList.contains('hidden') &&
+            !e.target.closest('#chatMenu') && !e.target.closest('#chatMenuToggle')) {
+            closeChatMenu();
+        }
+        if (el.emojiPicker && !el.emojiPicker.classList.contains('hidden') &&
+            !e.target.closest('#emojiPicker') && !e.target.closest('#emojiBtn')) {
+            el.emojiPicker.classList.add('hidden');
+            el.emojiBtn?.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Эмодзи вставляются в обычный текст сообщения и отправляются через существующий API.
+    if (el.emojiBtn && el.emojiPicker) {
+        el.emojiBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isOpening = el.emojiPicker.classList.contains('hidden');
+            el.emojiPicker.classList.toggle('hidden');
+            el.emojiBtn.setAttribute('aria-expanded', String(isOpening));
+        });
+
+        el.emojiPicker.addEventListener('click', (e) => {
+            const choice = e.target.closest('[data-emoji]');
+            if (!choice) return;
+            const emoji = choice.dataset.emoji;
+            const input = el.messageInput;
+            const start = input.selectionStart ?? input.value.length;
+            const end = input.selectionEnd ?? input.value.length;
+            input.setRangeText(emoji, start, end, 'end');
+            input.focus();
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, 120) + 'px';
+            el.emojiPicker.classList.add('hidden');
+            el.emojiBtn.setAttribute('aria-expanded', 'false');
+        });
+    }
+
+    // Сервер пока принимает только текст: кнопка скрепки обозначает будущую функцию.
+    if (el.attachBtn) {
+        el.attachBtn.addEventListener('click', () => {
+            toast('Прикрепление файлов пока не подключено на сервере', 'info');
+        });
+    }
+
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
+            closeChatMenu();
+            if (el.emojiPicker) el.emojiPicker.classList.add('hidden');
+            if (el.emojiBtn) el.emojiBtn.setAttribute('aria-expanded', 'false');
             if (!el.settingsOverlay.classList.contains('hidden')) closeSettings();
             if (!el.infoOverlay.classList.contains('hidden')) el.infoOverlay.classList.add('hidden');
             if (!el.searchOverlay?.classList.contains('hidden')) closeSearchModal();
