@@ -186,16 +186,16 @@ function saveSettings() {
    ПРОФИЛЬ
    ========================================================= */
 function applyUser() {
-  const me = state.me;
-  if (!me) return;
-  const av = initials(me.name);
-  el.myAvatar.textContent = av;
-  el.myName.textContent = me.name;
-  el.myRole.textContent = roleLabel(me.role);
-  el.settingsAvatar.textContent = av;
-  el.settingsName.textContent = me.name;
-  el.settingsRole.textContent = roleLabel(me.role);
-  el.settingsStatus.value = state.settings.status || '';
+    const me = state.me;
+    if (!me) return;
+    const av = initials(me.name);
+    el.myAvatar.textContent = av;
+    el.myName.textContent = me.name;
+    el.myRole.textContent = roleLabel(me.role);
+    el.settingsAvatar.textContent = av;
+    el.settingsName.textContent = me.name;
+    el.settingsRole.textContent = roleLabel(me.role);
+    el.settingsStatus.value = me.status || '';
 }
 
 /* =========================================================
@@ -374,30 +374,43 @@ async function sendMessage() {
    НАСТРОЙКИ
    ========================================================= */
 function openSettings() {
-  el.settingsStatus.value = state.settings.status || '';
-  el.notificationsEnabled.checked = state.settings.notificationsEnabled;
-  el.notificationsSound.checked = state.settings.notificationsSound;
-  el.quietFrom.value = state.settings.quietFrom;
-  el.quietTo.value = state.settings.quietTo;
-  el.themeSelector.querySelectorAll('.theme-option').forEach(b =>
-    b.classList.toggle('selected', b.dataset.themeChoice === state.settings.theme)
-  );
-  el.settingsOverlay.classList.remove('hidden');
+    const userId = state.me?.id || 'guest';
+    try {
+        const userSettings = JSON.parse(localStorage.getItem(`em_settings_${userId}`));
+        if (userSettings) Object.assign(state.settings, userSettings);
+    } catch { }
+
+    el.settingsStatus.value = state.me?.status || '';
+    el.notificationsEnabled.checked = state.settings.notificationsEnabled;
+    el.notificationsSound.checked = state.settings.notificationsSound;
+    el.quietFrom.value = state.settings.quietFrom;
+    el.quietTo.value = state.settings.quietTo;
+    el.themeSelector.querySelectorAll('.theme-option').forEach(b =>
+        b.classList.toggle('selected', b.dataset.themeChoice === state.settings.theme)
+    );
+    el.settingsOverlay.classList.remove('hidden');
 }
 
 function closeSettings() {
-  el.settingsOverlay.classList.add('hidden');
+    el.settingsOverlay.classList.add('hidden');
 }
-
 function saveSettingsFromUI() {
-  state.settings.status = el.settingsStatus.value.trim();
-  state.settings.notificationsEnabled = el.notificationsEnabled.checked;
-  state.settings.notificationsSound = el.notificationsSound.checked;
-  state.settings.quietFrom = el.quietFrom.value || '22:00';
-  state.settings.quietTo = el.quietTo.value || '08:00';
-  saveSettings();
-  closeSettings();
-  toast('Настройки сохранены');
+    const userId = state.me?.id || 'guest';
+    state.settings.status = el.settingsStatus.value.trim();
+    state.settings.notificationsEnabled = el.notificationsEnabled.checked;
+    state.settings.notificationsSound = el.notificationsSound.checked;
+    state.settings.quietFrom = el.quietFrom.value || '22:00';
+    state.settings.quietTo = el.quietTo.value || '08:00';
+
+    localStorage.setItem(`em_settings_${userId}`, JSON.stringify(state.settings));
+
+    if (state.me) {
+        state.me.status = state.settings.status;
+        localStorage.setItem(USER_KEY, JSON.stringify(state.me));
+    }
+
+    closeSettings();
+    toast('Настройки сохранены');
 }
 
 /* =========================================================

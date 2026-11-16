@@ -59,10 +59,10 @@ class AuthController
 
         $hash = password_hash($password, PASSWORD_DEFAULT);
         $stmt = Database::get()->prepare(
-            'INSERT INTO users (name, email, password_hash, role, group_id, department_id)
-             VALUES (?, ?, ?, ?, ?, ?)'
+            'INSERT INTO users (name, email, password_hash, role, group_id, department_id, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?)'
         );
-        $stmt->execute([$name, $email, $hash, $role, $groupId, $departmentId]);
+        $stmt->execute([$name, $email, $hash, $role, $groupId, $departmentId, '']);
 
         $userId = (int)Database::get()->lastInsertId();
         $stmt = Database::get()->prepare('SELECT * FROM users WHERE id = ?');

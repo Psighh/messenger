@@ -52,6 +52,7 @@ class Auth
             'name' => $user['name'],
             'email' => $user['email'],
             'role' => $user['role'],
+            'status' => $user['status'] ?? '',
             'groupId' => isset($user['group_id']) && $user['group_id'] !== null ? (int)$user['group_id'] : null,
             'departmentId' => isset($user['department_id']) && $user['department_id'] !== null ? (int)$user['department_id'] : null,
         ];
