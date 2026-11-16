@@ -51,8 +51,8 @@ $router->post('/api/departments',   [DepartmentController::class, 'store']);
 $router->put('/api/departments/{id}',    [DepartmentController::class, 'update']);
 $router->delete('/api/departments/{id}', [DepartmentController::class, 'destroy']);
 
-$router->get('/api/groups',    [GroupController::class, 'index']);
-$router->post('/api/groups',   [GroupController::class, 'store']);
+$router->get('/api/groups',     [GroupController::class, 'index']);
+$router->post('/api/groups',    [GroupController::class, 'store']);
 $router->put('/api/groups/{id}',    [GroupController::class, 'update']);
 $router->delete('/api/groups/{id}', [GroupController::class, 'destroy']);
 
@@ -75,18 +75,20 @@ $router->post('/api/broadcasts/{id}/read', [BroadcastController::class, 'markRea
 
 // --- Messenger ---
 $router->get('/api/chats',                  [ChatController::class, 'index']);
+$router->get('/api/users/search',           [ChatController::class, 'searchUsers']);
+$router->post('/api/chats/start',           [ChatController::class, 'startChat']);
 $router->get('/api/chats/{id}/messages',    [ChatController::class, 'messages']);
 $router->post('/api/chats/{id}/messages',   [ChatController::class, 'send']);
+$router->delete('/api/chats/{id}',          [ChatController::class, 'destroyChat']);
+
+// --- Messages deletion ---
+$router->delete('/api/messages/{id}',       [ChatController::class, 'deleteMessage']);
 
 // --- Profile ---
 $router->put('/api/me/profile',        [UserController::class, 'updateProfile']);
 $router->put('/api/me/notifications',  [UserController::class, 'updateNotifications']);
 
 // ===== Нормализация URI =====
-// Приходят разные варианты:
-//   /App/public/index.php/api/public/groups  → /api/public/groups
-//   /App/public/api/public/groups            → /api/public/groups
-//   /api/public/groups                       → /api/public/groups
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/';
 
 $prefixes = [
