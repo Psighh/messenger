@@ -631,6 +631,13 @@ function bindEvents() {
       if (!el.infoOverlay.classList.contains('hidden')) el.infoOverlay.classList.add('hidden');
     }
   });
+
+    // Выход из аккаунта
+    $('logoutBtn')?.addEventListener('click', () => {
+        localStorage.removeItem(TOKEN_KEY);
+        localStorage.removeItem(USER_KEY);
+        window.location.href = 'auth.html';
+    });
 }
 
 /* =========================================================

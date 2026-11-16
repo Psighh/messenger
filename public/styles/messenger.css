@@ -749,3 +749,22 @@ body {
   .toast-container { left: 16px; right: 16px; bottom: 16px; }
   .toast { min-width: 0; width: 100%; }
 }
+
+.btn-danger {
+    background: var(--danger-soft);
+    color: var(--danger);
+    border: 1px solid var(--danger);
+    padding: 9px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    transition: all var(--transition);
+    margin-right: auto; /* прижимает кнопку влево в футере */
+}
+
+    .btn-danger:hover {
+        background: var(--danger);
+        color: #fff;
+    }
